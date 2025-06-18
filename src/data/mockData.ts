@@ -87,6 +87,66 @@ export const mockDoctors: Doctor[] = [
     },
     status: 'Available',
     consultationFee: 180
+  },
+  {
+    id: '3',
+    firstName: 'Dr. Emanuel',
+    lastName: 'Efisung',
+    specialization: 'Neurology',
+    phoneNumber: '+1-555-1003',
+    email: 'e.efisung@hospital.com',
+    licenseNumber: 'MD345678',
+    department: 'Neurology',
+    yearsOfExperience: 10,
+    availability: {
+      'Monday': [{ start: '08:30', end: '16:30' }],
+      'Tuesday': [{ start: '08:30', end: '16:30' }],
+      'Wednesday': [{ start: '08:30', end: '16:30' }],
+      'Thursday': [{ start: '08:30', end: '16:30' }],
+      'Friday': [{ start: '08:30', end: '15:30' }]
+    },
+    status: 'Available',
+    consultationFee: 220
+  },
+  {
+    id: '4',
+    firstName: 'Dr. Ismail',
+    lastName: 'Moradeyo',
+    specialization: 'Pediatrics',
+    phoneNumber: '+1-555-1004',
+    email: 'i.moradeyo@hospital.com',
+    licenseNumber: 'MD901234',
+    department: 'Pediatrics',
+    yearsOfExperience: 9,
+    availability: {
+      'Monday': [{ start: '09:00', end: '17:00' }],
+      'Tuesday': [{ start: '09:00', end: '17:00' }],
+      'Wednesday': [{ start: '09:00', end: '17:00' }],
+      'Thursday': [{ start: '09:00', end: '17:00' }],
+      'Friday': [{ start: '09:00', end: '16:00' }]
+    },
+    status: 'Available',
+    consultationFee: 190
+  },
+  {
+    id: '5',
+    firstName: 'Dr. Ridwan',
+    lastName: 'Muhamed',
+    specialization: 'Dermatology',
+    phoneNumber: '+1-555-1005',
+    email: 'r.muhamed@hospital.com',
+    licenseNumber: 'MD567890',
+    department: 'Dermatology',
+    yearsOfExperience: 6,
+    availability: {
+      'Monday': [{ start: '10:00', end: '18:00' }],
+      'Tuesday': [{ start: '10:00', end: '18:00' }],
+      'Wednesday': [{ start: '10:00', end: '18:00' }],
+      'Thursday': [{ start: '10:00', end: '18:00' }],
+      'Friday': [{ start: '10:00', end: '17:00' }]
+    },
+    status: 'Available',
+    consultationFee: 160
   }
 ];
 
@@ -112,6 +172,28 @@ export const mockAppointments: Appointment[] = [
     status: 'Scheduled',
     symptoms: 'Knee pain follow-up',
     priority: 'Medium'
+  },
+  {
+    id: '3',
+    patientId: '1',
+    doctorId: '3',
+    dateTime: '2024-01-26T11:00:00Z',
+    duration: 60,
+    type: 'Consultation',
+    status: 'Scheduled',
+    symptoms: 'Headaches and dizziness',
+    priority: 'Medium'
+  },
+  {
+    id: '4',
+    patientId: '2',
+    doctorId: '4',
+    dateTime: '2024-01-26T15:00:00Z',
+    duration: 30,
+    type: 'Consultation',
+    status: 'Scheduled',
+    symptoms: 'Child wellness check',
+    priority: 'Low'
   }
 ];
 
@@ -135,6 +217,36 @@ export const mockRooms: Room[] = [
     floor: 2,
     capacity: 1,
     equipment: ['Ventilator', 'Cardiac Monitor', 'Defibrillator'],
+    dailyRate: 500
+  },
+  {
+    id: '3',
+    roomNumber: '102',
+    type: 'Private',
+    status: 'Available',
+    floor: 1,
+    capacity: 1,
+    equipment: ['Bed', 'TV', 'Private Bathroom', 'Oxygen'],
+    dailyRate: 250
+  },
+  {
+    id: '4',
+    roomNumber: '301',
+    type: 'General',
+    status: 'Maintenance',
+    floor: 3,
+    capacity: 2,
+    equipment: ['Bed', 'Monitor'],
+    dailyRate: 150
+  },
+  {
+    id: '5',
+    roomNumber: '202',
+    type: 'ICU',
+    status: 'Available',
+    floor: 2,
+    capacity: 1,
+    equipment: ['Ventilator', 'Cardiac Monitor', 'Defibrillator', 'IV Pump'],
     dailyRate: 500
   }
 ];
@@ -214,6 +326,28 @@ export const mockMedicalRecords: MedicalRecord[] = [
     ],
     notes: 'Patient advised to monitor blood pressure daily',
     followUpDate: '2024-02-20'
+  },
+  {
+    id: '2',
+    patientId: '1',
+    doctorId: '3',
+    date: '2024-01-22T14:00:00Z',
+    diagnosis: 'Migraine',
+    symptoms: 'Severe headaches, light sensitivity',
+    treatment: 'Pain management, lifestyle modifications',
+    prescriptions: [
+      {
+        id: '2',
+        medicationName: 'Sumatriptan',
+        dosage: '50mg',
+        frequency: 'As needed',
+        duration: '30 days',
+        instructions: 'Take at onset of headache',
+        prescribedDate: '2024-01-22'
+      }
+    ],
+    notes: 'Recommend stress management techniques',
+    followUpDate: '2024-02-22'
   }
 ];
 
@@ -245,5 +379,33 @@ export const mockBills: Bill[] = [
     dueDate: '2024-02-15',
     createdDate: '2024-01-20',
     insuranceCovered: 220
+  },
+  {
+    id: '2',
+    patientId: '2',
+    items: [
+      {
+        id: '3',
+        description: 'Pediatric Consultation',
+        quantity: 1,
+        unitPrice: 190,
+        totalPrice: 190,
+        category: 'Consultation'
+      },
+      {
+        id: '4',
+        description: 'Vaccination',
+        quantity: 2,
+        unitPrice: 25,
+        totalPrice: 50,
+        category: 'Procedure'
+      }
+    ],
+    totalAmount: 240,
+    paidAmount: 240,
+    status: 'Paid',
+    dueDate: '2024-02-10',
+    createdDate: '2024-01-18',
+    paymentMethod: 'Credit Card'
   }
 ];
