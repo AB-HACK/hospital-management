@@ -22,6 +22,7 @@ export interface Patient {
   };
   createdAt: string;
   status: 'Active' | 'Inactive' | 'Discharged';
+  patientNumber: string;
 }
 
 export interface Doctor {

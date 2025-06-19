@@ -6,6 +6,7 @@ import { PatientsList } from './components/Patients/PatientsList';
 import { DoctorsList } from './components/Doctors/DoctorsList';
 import { AppointmentsList } from './components/Appointments/AppointmentsList';
 import { RoomManagement } from './components/Rooms/RoomManagement';
+import { MedicalRecords } from './components/MedicalRecords/MedicalRecords';
 
 const sectionTitles = {
   dashboard: 'Dashboard',
@@ -33,15 +34,10 @@ function App() {
         return <DoctorsList />;
       case 'appointments':
         return <AppointmentsList />;
+      case 'medical-records':
+        return <MedicalRecords />;
       case 'rooms':
         return <RoomManagement />;
-      case 'medical-records':
-        return (
-          <div className="bg-white rounded-xl shadow-soft p-6 lg:p-8 text-center">
-            <h3 className="text-lg lg:text-xl font-semibold text-gray-900 mb-4">Medical Records</h3>
-            <p className="text-sm lg:text-base text-gray-600">Electronic health records management system coming soon...</p>
-          </div>
-        );
       case 'billing':
         return (
           <div className="bg-white rounded-xl shadow-soft p-6 lg:p-8 text-center">

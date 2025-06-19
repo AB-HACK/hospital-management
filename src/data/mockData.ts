@@ -23,7 +23,8 @@ export const mockPatients: Patient[] = [
       policyNumber: 'HC123456789'
     },
     createdAt: '2024-01-15T10:30:00Z',
-    status: 'Active'
+    status: 'Active',
+    patientNumber: 'PT001'
   },
   {
     id: '2',
@@ -43,7 +44,50 @@ export const mockPatients: Patient[] = [
     allergies: ['Latex'],
     medicalHistory: [],
     createdAt: '2024-01-20T14:15:00Z',
-    status: 'Active'
+    status: 'Active',
+    patientNumber: 'PT002'
+  },
+  {
+    id: '3',
+    firstName: 'Michael',
+    lastName: 'Brown',
+    dateOfBirth: '1978-11-08',
+    gender: 'Male',
+    phoneNumber: '+1-555-0345',
+    email: 'michael.brown@email.com',
+    address: '789 Pine St, Elsewhere, ST 54321',
+    emergencyContact: {
+      name: 'Lisa Brown',
+      relationship: 'Wife',
+      phoneNumber: '+1-555-0346'
+    },
+    bloodGroup: 'B+',
+    allergies: ['Aspirin'],
+    medicalHistory: [],
+    createdAt: '2023-12-10T09:45:00Z',
+    status: 'Active',
+    patientNumber: 'PT003'
+  },
+  {
+    id: '4',
+    firstName: 'Emily',
+    lastName: 'Davis',
+    dateOfBirth: '1995-05-30',
+    gender: 'Female',
+    phoneNumber: '+1-555-0456',
+    email: 'emily.davis@email.com',
+    address: '321 Elm St, Nowhere, ST 98765',
+    emergencyContact: {
+      name: 'Robert Davis',
+      relationship: 'Father',
+      phoneNumber: '+1-555-0457'
+    },
+    bloodGroup: 'AB-',
+    allergies: [],
+    medicalHistory: [],
+    createdAt: '2023-11-25T16:20:00Z',
+    status: 'Active',
+    patientNumber: 'PT004'
   }
 ];
 
@@ -63,7 +107,9 @@ export const mockDoctors: Doctor[] = [
       'Tuesday': [{ start: '09:00', end: '17:00' }],
       'Wednesday': [{ start: '09:00', end: '17:00' }],
       'Thursday': [{ start: '09:00', end: '17:00' }],
-      'Friday': [{ start: '09:00', end: '15:00' }]
+      'Friday': [{ start: '09:00', end: '15:00' }],
+      'Saturday': [],
+      'Sunday': []
     },
     status: 'Available',
     consultationFee: 200
@@ -83,7 +129,9 @@ export const mockDoctors: Doctor[] = [
       'Tuesday': [{ start: '08:00', end: '16:00' }],
       'Wednesday': [{ start: '08:00', end: '16:00' }],
       'Thursday': [{ start: '08:00', end: '16:00' }],
-      'Friday': [{ start: '08:00', end: '14:00' }]
+      'Friday': [{ start: '08:00', end: '14:00' }],
+      'Saturday': [],
+      'Sunday': []
     },
     status: 'Available',
     consultationFee: 180
@@ -103,7 +151,9 @@ export const mockDoctors: Doctor[] = [
       'Tuesday': [{ start: '08:30', end: '16:30' }],
       'Wednesday': [{ start: '08:30', end: '16:30' }],
       'Thursday': [{ start: '08:30', end: '16:30' }],
-      'Friday': [{ start: '08:30', end: '15:30' }]
+      'Friday': [{ start: '08:30', end: '15:30' }],
+      'Saturday': [],
+      'Sunday': []
     },
     status: 'Available',
     consultationFee: 220
@@ -123,7 +173,9 @@ export const mockDoctors: Doctor[] = [
       'Tuesday': [{ start: '09:00', end: '17:00' }],
       'Wednesday': [{ start: '09:00', end: '17:00' }],
       'Thursday': [{ start: '09:00', end: '17:00' }],
-      'Friday': [{ start: '09:00', end: '16:00' }]
+      'Friday': [{ start: '09:00', end: '16:00' }],
+      'Saturday': [],
+      'Sunday': []
     },
     status: 'Available',
     consultationFee: 190
@@ -143,7 +195,9 @@ export const mockDoctors: Doctor[] = [
       'Tuesday': [{ start: '10:00', end: '18:00' }],
       'Wednesday': [{ start: '10:00', end: '18:00' }],
       'Thursday': [{ start: '10:00', end: '18:00' }],
-      'Friday': [{ start: '10:00', end: '17:00' }]
+      'Friday': [{ start: '10:00', end: '17:00' }],
+      'Saturday': [],
+      'Sunday': []
     },
     status: 'Available',
     consultationFee: 160
@@ -348,6 +402,40 @@ export const mockMedicalRecords: MedicalRecord[] = [
     ],
     notes: 'Recommend stress management techniques',
     followUpDate: '2024-02-22'
+  },
+  {
+    id: '3',
+    patientId: '3',
+    doctorId: '2',
+    date: '2023-12-15T09:30:00Z',
+    diagnosis: 'Fractured Wrist',
+    symptoms: 'Pain and swelling in left wrist after fall',
+    treatment: 'Cast application, pain medication',
+    prescriptions: [
+      {
+        id: '3',
+        medicationName: 'Ibuprofen',
+        dosage: '400mg',
+        frequency: 'Three times daily',
+        duration: '14 days',
+        instructions: 'Take with food to avoid stomach upset',
+        prescribedDate: '2023-12-15'
+      }
+    ],
+    notes: 'Patient should return in 6 weeks for cast removal',
+    followUpDate: '2024-01-26'
+  },
+  {
+    id: '4',
+    patientId: '4',
+    doctorId: '4',
+    date: '2023-11-30T11:15:00Z',
+    diagnosis: 'Routine Checkup',
+    symptoms: 'No specific symptoms, routine health screening',
+    treatment: 'Preventive care counseling, vaccinations updated',
+    prescriptions: [],
+    notes: 'Patient in good health, continue current lifestyle',
+    followUpDate: '2024-11-30'
   }
 ];
 
