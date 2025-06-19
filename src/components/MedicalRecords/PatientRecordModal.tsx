@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, FileText, User, Calendar, Pill, Download, Print, Edit, Plus } from 'lucide-react';
+import { X, FileText, User, Calendar, Pill, Download, Printer as Print, Edit, Plus } from 'lucide-react';
 import { mockDoctors } from '../../data/mockData';
 import { format, parseISO } from 'date-fns';
 
