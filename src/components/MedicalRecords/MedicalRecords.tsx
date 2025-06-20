@@ -82,14 +82,13 @@ export const MedicalRecords: React.FC = () => {
   const getTotalPatientsInYear = (year: string): number => {
     return Object.values(groupedRecords[year]).reduce((total, months) =>
       total + Object.values(months).reduce((monthTotal, days) =>
-        monthTotal + days.reduce((dayTotal, dayData) => dayTotal + dayData.length, 0), 0), 0);
+        monthTotal + days.length, 0), 0);
   };
 
   const getTotalRecordsInYear = (year: string): number => {
     return Object.values(groupedRecords[year]).reduce((total, months) =>
       total + Object.values(months).reduce((monthTotal, days) =>
-        monthTotal + days.reduce((dayTotal, dayData) =>
-          dayTotal + dayData.reduce((recordTotal, entry) => recordTotal + entry.records.length, 0), 0), 0), 0);
+        monthTotal + days.reduce((dayTotal, entry) => dayTotal + entry.records.length, 0), 0), 0);
   };
 
   const handleAddRecord = (recordData: any) => {
