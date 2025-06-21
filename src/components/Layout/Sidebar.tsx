@@ -12,12 +12,15 @@ import {
   Settings,
   Heart,
   Menu,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 
 interface SidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
+  user?: { username: string; role: 'admin' | 'doctor' };
+  onLogout?: () => void;
 }
 
 const menuItems = [
@@ -33,7 +36,12 @@ const menuItems = [
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ 
+  activeSection, 
+  onSectionChange, 
+  user,
+  onLogout 
+}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -75,17 +83,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange
       `}>
         <div className="p-4 lg:p-6 border-b border-gray-100">
           <div className="flex items-center space-x-3">
-            <div className="bg-primary-600 p-2 rounded-lg">
+            <div className="bg-blue-600 p-2 rounded-lg">
               <Heart className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
             </div>
             <div>
               <h1 className="text-lg lg:text-xl font-bold text-gray-900">MediCore</h1>
-              <p className="text-xs lg:text-sm text-gray-500">Hospital Management</p>
+              <p className="text-xs lg:text-sm text-gray-500">
+                {user?.role === 'admin' ? 'Admin Portal' : 'Hospital Management'}
+              </p>
             </div>
           </div>
         </div>
         
-        <nav className="mt-4 lg:mt-6 px-2 lg:px-3 pb-4 overflow-y-auto max-h-[calc(100vh-120px)]">
+        <nav className="mt-4 lg:mt-6 px-2 lg:px-3 pb-4 overflow-y-auto max-h-[calc(100vh-200px)]">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -94,18 +104,44 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange
                 onClick={() => handleMenuItemClick(item.id)}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 lg:py-3 text-left rounded-lg mb-1 transition-all duration-200 ${
                   activeSection === item.id
-                    ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600'
+                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
                 <Icon className={`h-4 w-4 lg:h-5 lg:w-5 ${
-                  activeSection === item.id ? 'text-primary-600' : 'text-gray-400'
+                  activeSection === item.id ? 'text-blue-600' : 'text-gray-400'
                 }`} />
                 <span className="font-medium text-sm lg:text-base">{item.label}</span>
               </button>
             );
           })}
         </nav>
+
+        {/* User Info & Logout */}
+        {user && onLogout && (
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="bg-blue-100 p-2 rounded-full">
+                  <span className="text-blue-600 font-semibold text-sm">
+                    {user.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{user.username}</p>
+                  <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                </div>
+              </div>
+              <button
+                onClick={onLogout}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

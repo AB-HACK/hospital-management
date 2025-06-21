@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LandingPage } from './components/Landing/LandingPage';
 import { Sidebar } from './components/Layout/Sidebar';
 import { Header } from './components/Layout/Header';
 import { Dashboard } from './components/Dashboard/Dashboard';
@@ -7,6 +8,7 @@ import { DoctorsList } from './components/Doctors/DoctorsList';
 import { AppointmentsList } from './components/Appointments/AppointmentsList';
 import { RoomManagement } from './components/Rooms/RoomManagement';
 import { MedicalRecords } from './components/MedicalRecords/MedicalRecords';
+import { DoctorDashboard } from './components/Doctors/DoctorDashboard';
 
 const sectionTitles = {
   dashboard: 'Dashboard',
@@ -21,9 +23,86 @@ const sectionTitles = {
   settings: 'Settings',
 };
 
+interface User {
+  username: string;
+  role: 'admin' | 'doctor';
+  doctorId?: string;
+}
+
 function App() {
+  const [user, setUser] = useState<User | null>(null);
   const [activeSection, setActiveSection] = useState('dashboard');
 
+  const handleLogin = (credentials: { username: string; password: string; role: string }) => {
+    // Mock authentication - in real app, this would be an API call
+    const userData: User = {
+      username: credentials.username,
+      role: credentials.role as 'admin' | 'doctor'
+    };
+
+    // If it's a doctor, assign a doctor ID based on username
+    if (credentials.role === 'doctor') {
+      // Map usernames to doctor IDs from mockData
+      const doctorMap: { [key: string]: string } = {
+        'dr.watson': '1',
+        'dr.chen': '2',
+        'dr.efisung': '3',
+        'dr.moradeyo': '4',
+        'dr.muhamed': '5'
+      };
+      userData.doctorId = doctorMap[credentials.username] || '1';
+    }
+
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setActiveSection('dashboard');
+  };
+
+  // If user is not logged in, show landing page
+  if (!user) {
+    return <LandingPage onLogin={handleLogin} />;
+  }
+
+  // Doctor Dashboard - limited access
+  if (user.role === 'doctor') {
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <div className="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white shadow-soft-lg">
+          <div className="p-4 lg:p-6 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                  <span className="text-white font-bold text-sm">MD</span>
+                </div>
+                <div>
+                  <h1 className="text-lg lg:text-xl font-bold text-gray-900">Doctor Portal</h1>
+                  <p className="text-xs lg:text-sm text-gray-500">Welcome, {user.username}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex-1 flex flex-col min-w-0 lg:ml-0">
+          <Header title="Doctor Dashboard" />
+          <main className="flex-1 p-3 sm:p-4 lg:p-6">
+            <DoctorDashboard doctorId={user.doctorId!} />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin Dashboard - full access
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard':
@@ -73,7 +152,12 @@ function App() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+      <Sidebar 
+        activeSection={activeSection} 
+        onSectionChange={setActiveSection}
+        user={user}
+        onLogout={handleLogout}
+      />
       <div className="flex-1 flex flex-col min-w-0 lg:ml-0">
         <Header title={sectionTitles[activeSection as keyof typeof sectionTitles]} />
         <main className="flex-1 p-3 sm:p-4 lg:p-6">

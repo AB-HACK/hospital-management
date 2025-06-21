@@ -497,3 +497,48 @@ export const mockBills: Bill[] = [
     paymentMethod: 'Credit Card'
   }
 ];
+
+// Mock user credentials for authentication
+export const mockUsers = [
+  {
+    username: 'admin',
+    password: 'admin123',
+    role: 'admin',
+    name: 'System Administrator'
+  },
+  {
+    username: 'dr.watson',
+    password: 'doctor123',
+    role: 'doctor',
+    name: 'Dr. Emily Watson',
+    doctorId: '1'
+  },
+  {
+    username: 'dr.chen',
+    password: 'doctor123',
+    role: 'doctor',
+    name: 'Dr. Michael Chen',
+    doctorId: '2'
+  },
+  {
+    username: 'dr.efisung',
+    password: 'doctor123',
+    role: 'doctor',
+    name: 'Dr. Emanuel Efisung',
+    doctorId: '3'
+  },
+  {
+    username: 'dr.moradeyo',
+    password: 'doctor123',
+    role: 'doctor',
+    name: 'Dr. Ismail Moradeyo',
+    doctorId: '4'
+  },
+  {
+    username: 'dr.muhamed',
+    password: 'doctor123',
+    role: 'doctor',
+    name: 'Dr. Ridwan Muhamed',
+    doctorId: '5'
+  }
+];
