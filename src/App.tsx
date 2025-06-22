@@ -9,6 +9,8 @@ import { AppointmentsList } from './components/Appointments/AppointmentsList';
 import { RoomManagement } from './components/Rooms/RoomManagement';
 import { MedicalRecords } from './components/MedicalRecords/MedicalRecords';
 import { DoctorDashboard } from './components/Doctors/DoctorDashboard';
+import { PatientPortal } from './components/Patients/PatientPortal';
+import { mockPatients } from './data/mockData';
 
 const sectionTitles = {
   dashboard: 'Dashboard',
@@ -25,8 +27,9 @@ const sectionTitles = {
 
 interface User {
   username: string;
-  role: 'admin' | 'doctor';
+  role: 'admin' | 'doctor' | 'patient';
   doctorId?: string;
+  patientId?: string;
 }
 
 function App() {
@@ -56,6 +59,24 @@ function App() {
     setUser(userData);
   };
 
+  const handlePatientLogin = (credentials: { username: string; password: string; type: 'patient' }) => {
+    // Mock patient authentication
+    const patientMap: { [key: string]: string } = {
+      'john.doe': '1',
+      'sarah.johnson': '2',
+      'michael.brown': '3',
+      'emily.davis': '4'
+    };
+
+    const userData: User = {
+      username: credentials.username,
+      role: 'patient',
+      patientId: patientMap[credentials.username] || '1'
+    };
+
+    setUser(userData);
+  };
+
   const handleLogout = () => {
     setUser(null);
     setActiveSection('dashboard');
@@ -63,7 +84,38 @@ function App() {
 
   // If user is not logged in, show landing page
   if (!user) {
-    return <LandingPage onLogin={handleLogin} />;
+    return <LandingPage onLogin={handleLogin} onPatientLogin={handlePatientLogin} />;
+  }
+
+  // Patient Portal - limited access for patients
+  if (user.role === 'patient') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white shadow-sm border-b border-gray-100 px-4 lg:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-blue-600 p-2 rounded-lg">
+                <span className="text-white font-bold text-sm">MP</span>
+              </div>
+              <div>
+                <h1 className="text-lg lg:text-xl font-bold text-gray-900">Patient Portal</h1>
+                <p className="text-xs lg:text-sm text-gray-500">Welcome, {user.username}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+        
+        <main className="p-4 lg:p-6">
+          <PatientPortal patientId={user.patientId!} />
+        </main>
+      </div>
+    );
   }
 
   // Doctor Dashboard - limited access

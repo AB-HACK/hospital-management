@@ -248,6 +248,28 @@ export const mockAppointments: Appointment[] = [
     status: 'Scheduled',
     symptoms: 'Child wellness check',
     priority: 'Low'
+  },
+  {
+    id: '5',
+    patientId: '1',
+    doctorId: '1',
+    dateTime: '2024-01-10T10:00:00Z',
+    duration: 30,
+    type: 'Consultation',
+    status: 'Completed',
+    symptoms: 'Regular checkup',
+    priority: 'Low'
+  },
+  {
+    id: '6',
+    patientId: '3',
+    doctorId: '2',
+    dateTime: '2023-12-15T14:00:00Z',
+    duration: 45,
+    type: 'Consultation',
+    status: 'Completed',
+    symptoms: 'Wrist injury',
+    priority: 'Medium'
   }
 ];
 
@@ -436,6 +458,28 @@ export const mockMedicalRecords: MedicalRecord[] = [
     prescriptions: [],
     notes: 'Patient in good health, continue current lifestyle',
     followUpDate: '2024-11-30'
+  },
+  {
+    id: '5',
+    patientId: '2',
+    doctorId: '4',
+    date: '2024-01-18T09:00:00Z',
+    diagnosis: 'Allergic Reaction',
+    symptoms: 'Skin rash, itching',
+    treatment: 'Antihistamine medication, avoid allergen',
+    prescriptions: [
+      {
+        id: '4',
+        medicationName: 'Cetirizine',
+        dosage: '10mg',
+        frequency: 'Once daily',
+        duration: '7 days',
+        instructions: 'Take in the evening',
+        prescribedDate: '2024-01-18'
+      }
+    ],
+    notes: 'Patient should avoid latex exposure',
+    followUpDate: '2024-02-01'
   }
 ];
 
@@ -495,6 +539,34 @@ export const mockBills: Bill[] = [
     dueDate: '2024-02-10',
     createdDate: '2024-01-18',
     paymentMethod: 'Credit Card'
+  },
+  {
+    id: '3',
+    patientId: '1',
+    items: [
+      {
+        id: '5',
+        description: 'Neurology Consultation',
+        quantity: 1,
+        unitPrice: 220,
+        totalPrice: 220,
+        category: 'Consultation'
+      },
+      {
+        id: '6',
+        description: 'MRI Scan',
+        quantity: 1,
+        unitPrice: 800,
+        totalPrice: 800,
+        category: 'Test'
+      }
+    ],
+    totalAmount: 1020,
+    paidAmount: 0,
+    status: 'Pending',
+    dueDate: '2024-02-22',
+    createdDate: '2024-01-22',
+    insuranceCovered: 800
   }
 ];
 
@@ -540,5 +612,40 @@ export const mockUsers = [
     role: 'doctor',
     name: 'Dr. Ridwan Muhamed',
     doctorId: '5'
+  },
+  // Patient credentials
+  {
+    username: 'john.doe',
+    password: 'patient123',
+    role: 'patient',
+    name: 'John Doe',
+    patientId: '1'
+  },
+  {
+    username: 'sarah.johnson',
+    password: 'patient123',
+    role: 'patient',
+    name: 'Sarah Johnson',
+    patientId: '2'
+  },
+  {
+    username: 'michael.brown',
+    password: 'patient123',
+    role: 'patient',
+    name: 'Michael Brown',
+    patientId: '3'
+  },
+  {
+    username: 'emily.davis',
+    password: 'patient123',
+    role: 'patient',
+    name: 'Emily Davis',
+    patientId: '4'
   }
+];
+
+// Valid signup codes for patient registration
+export const validSignupCodes = [
+  'HSP2024001', 'HSP2024002', 'HSP2024003', 'HSP2024004', 'HSP2024005',
+  'MED2024001', 'MED2024002', 'MED2024003', 'ADM2024001', 'ADM2024002'
 ];

@@ -5,13 +5,16 @@ import { ServicesSection } from './ServicesSection';
 import { AboutSection } from './AboutSection';
 import { ContactSection } from './ContactSection';
 import { LoginModal } from '../Auth/LoginModal';
+import { PatientAuthModal } from '../Auth/PatientAuthModal';
 
 interface LandingPageProps {
   onLogin: (credentials: { username: string; password: string; role: string }) => void;
+  onPatientLogin: (credentials: { username: string; password: string; type: 'patient' }) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogin }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showPatientAuthModal, setShowPatientAuthModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -46,12 +49,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                   {item.label}
                 </a>
               ))}
-              <button
-                onClick={() => setShowLoginModal(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                Staff Login
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowPatientAuthModal(true)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Patient Portal
+                </button>
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition-colors font-medium"
+                >
+                  Staff Login
+                </button>
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -83,10 +94,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 ))}
                 <button
                   onClick={() => {
-                    setShowLoginModal(true);
+                    setShowPatientAuthModal(true);
                     setIsMobileMenuOpen(false);
                   }}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-left"
+                >
+                  Patient Portal
+                </button>
+                <button
+                  onClick={() => {
+                    setShowLoginModal(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition-colors font-medium text-left"
                 >
                   Staff Login
                 </button>
@@ -98,7 +118,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
 
       {/* Page Sections */}
       <div id="home">
-        <HeroSection onLoginClick={() => setShowLoginModal(true)} />
+        <HeroSection 
+          onLoginClick={() => setShowLoginModal(true)} 
+          onPatientLoginClick={() => setShowPatientAuthModal(true)}
+        />
       </div>
       
       <div id="services">
@@ -166,11 +189,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
         </div>
       </footer>
 
-      {/* Login Modal */}
+      {/* Modals */}
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onLogin={onLogin}
+      />
+
+      <PatientAuthModal
+        isOpen={showPatientAuthModal}
+        onClose={() => setShowPatientAuthModal(false)}
+        onLogin={onPatientLogin}
       />
     </div>
   );

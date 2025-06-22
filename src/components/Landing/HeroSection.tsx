@@ -3,9 +3,10 @@ import { Heart, Shield, Users, Award, ArrowRight } from 'lucide-react';
 
 interface HeroSectionProps {
   onLoginClick: () => void;
+  onPatientLoginClick: () => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick, onPatientLoginClick }) => {
   return (
     <div className="relative bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen">
       {/* Animated background elements */}
@@ -35,7 +36,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
             </div>
 
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <button className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 font-semibold flex items-center justify-center space-x-2">
+              <button 
+                onClick={onPatientLoginClick}
+                className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 font-semibold flex items-center justify-center space-x-2"
+              >
                 <span>Book Appointment</span>
                 <ArrowRight className="h-5 w-5" />
               </button>
