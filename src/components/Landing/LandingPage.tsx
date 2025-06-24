@@ -133,7 +133,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogi
       </div>
       
       <div id="contact">
-        <ContactSection />
+        <ContactSection onPatientLoginClick={() => setShowPatientAuthModal(true)} />
       </div>
 
       {/* Footer */}

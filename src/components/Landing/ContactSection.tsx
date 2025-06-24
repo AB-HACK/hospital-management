@@ -1,7 +1,11 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 
-export const ContactSection: React.FC = () => {
+interface ContactSectionProps {
+  onPatientLoginClick: () => void;
+}
+
+export const ContactSection: React.FC<ContactSectionProps> = ({ onPatientLoginClick }) => {
   return (
     <section className="py-20 bg-gray-900 text-white">
       <div className="container mx-auto px-4">
@@ -51,7 +55,10 @@ export const ContactSection: React.FC = () => {
         </div>
 
         <div className="mt-16 text-center">
-          <button className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+          <button 
+            onClick={onPatientLoginClick}
+            className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+          >
             Schedule an Appointment
           </button>
         </div>
