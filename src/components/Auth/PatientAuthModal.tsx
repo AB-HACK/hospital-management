@@ -1,380 +1,402 @@
 import React, { useState } from 'react';
-import { X, Lock, User, Eye, EyeOff, UserPlus, LogIn, Shield } from 'lucide-react';
+import { X, User, Lock, AlertCircle, CheckCircle, Key } from 'lucide-react';
+import { patients, signupCodes } from '../../data/mockData';
 
 interface PatientAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (credentials: { username: string; password: string; type: 'patient' }) => void;
+  onLogin: (patient: any) => void;
 }
 
-// Mock signup codes that admin would generate
-const validSignupCodes = [
-  'HSP2024001', 'HSP2024002', 'HSP2024003', 'HSP2024004', 'HSP2024005',
-  'MED2024001', 'MED2024002', 'MED2024003', 'ADM2024001', 'ADM2024002'
-];
-
-export const PatientAuthModal: React.FC<PatientAuthModalProps> = ({ isOpen, onClose, onLogin }) => {
+const PatientAuthModal: React.FC<PatientAuthModalProps> = ({ isOpen, onClose, onLogin }) => {
+  // UI state
   const [isSignup, setIsSignup] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
+  // Login form state
   const [loginData, setLoginData] = useState({
     username: '',
     password: ''
   });
 
+  // Signup form state
   const [signupData, setSignupData] = useState({
-    signupCode: '',
     firstName: '',
     lastName: '',
     email: '',
-    phoneNumber: '',
+    phone: '',
     dateOfBirth: '',
+    signupCode: '',
     username: '',
     password: '',
     confirmPassword: ''
   });
 
+  // Handle login form submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
-    
+    setIsLoading(true);
+
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock validation - check if username exists in patients
-    const validPatients = ['john.doe', 'sarah.johnson', 'michael.brown', 'emily.davis'];
-    
-    if (validPatients.includes(loginData.username) && loginData.password === 'patient123') {
-      onLogin({ ...loginData, type: 'patient' });
-      onClose();
+
+    // Find patient in mock data
+    const patient = patients.find(p => 
+      p.username === loginData.username && p.password === loginData.password
+    );
+
+    if (patient) {
+      onLogin(patient);
+      handleClose();
     } else {
       setError('Invalid username or password');
     }
-    
+
     setIsLoading(false);
   };
 
+  // Handle signup form submission
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
-    
-    // Validate signup code
-    if (!validSignupCodes.includes(signupData.signupCode)) {
-      setError('Invalid signup code. Please contact the hospital reception.');
-      setIsLoading(false);
-      return;
-    }
+    setSuccess('');
+    setIsLoading(true);
 
-    // Validate password match
+    // Validate passwords match
     if (signupData.password !== signupData.confirmPassword) {
       setError('Passwords do not match');
       setIsLoading(false);
       return;
     }
 
-    // Validate password strength
-    if (signupData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+    // Validate signup code
+    if (!signupCodes.includes(signupData.signupCode)) {
+      setError('Invalid signup code. Please contact the hospital for a valid code.');
+      setIsLoading(false);
+      return;
+    }
+
+    // Check if username already exists
+    if (patients.some(p => p.username === signupData.username)) {
+      setError('Username already exists. Please choose a different one.');
       setIsLoading(false);
       return;
     }
 
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock successful signup
-    onLogin({ username: signupData.username, password: signupData.password, type: 'patient' });
-    onClose();
-    
+
+    // Create new patient
+    const newPatient = {
+      id: `PT${String(patients.length + 1).padStart(3, '0')}`,
+      firstName: signupData.firstName,
+      lastName: signupData.lastName,
+      email: signupData.email,
+      phone: signupData.phone,
+      dateOfBirth: signupData.dateOfBirth,
+      username: signupData.username,
+      password: signupData.password,
+      createdAt: new Date().toISOString(),
+      appointments: [],
+      medicalRecords: [],
+      bills: []
+    };
+
+    // Add to patients array (in real app, this would be an API call)
+    patients.push(newPatient);
+
+    setSuccess('Account created successfully! You can now log in.');
+    setIsSignup(false);
+    resetForms();
     setIsLoading(false);
+  };
+
+  // Reset all forms
+  const resetForms = () => {
+    setLoginData({ username: '', password: '' });
+    setSignupData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      dateOfBirth: '',
+      signupCode: '',
+      username: '',
+      password: '',
+      confirmPassword: ''
+    });
+    setError('');
+    setSuccess('');
+  };
+
+  // Handle modal close
+  const handleClose = () => {
+    resetForms();
+    setIsSignup(false);
+    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full p-8 transform transition-all duration-300 scale-100 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {isSignup ? 'Patient Registration' : 'Patient Login'}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white">
+          <h2 className="text-2xl font-bold text-gray-800">
+            {isSignup ? 'Create Account' : 'Patient Login'}
           </h2>
-          <button 
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+          <button
+            onClick={handleClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <X className="h-6 w-6" />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
-        {/* Toggle Buttons */}
-        <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
-          <button
-            onClick={() => {
-              setIsSignup(false);
-              setError('');
-            }}
-            className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-all ${
-              !isSignup 
-                ? 'bg-white text-blue-600 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
-          >
-            <LogIn className="h-4 w-4" />
-            <span>Login</span>
-          </button>
-          <button
-            onClick={() => {
-              setIsSignup(true);
-              setError('');
-            }}
-            className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-all ${
-              isSignup 
-                ? 'bg-white text-blue-600 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
-          >
-            <UserPlus className="h-4 w-4" />
-            <span>Sign Up</span>
-          </button>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700 text-sm">{error}</p>
-          </div>
-        )}
-
-        {!isSignup ? (
-          // Login Form
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Username or Email
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  required
-                  value={loginData.username}
-                  onChange={(e) => setLoginData(prev => ({ ...prev, username: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder="Enter your username or email"
-                />
-              </div>
+        <div className="p-6">
+          {/* Success Message */}
+          {success && (
+            <div className="flex items-center space-x-2 p-3 bg-green-50 border border-green-200 rounded-lg mb-6">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              <span className="text-green-700 text-sm">{success}</span>
             </div>
+          )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={loginData.password}
-                  onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
+          {/* Error Message */}
+          {error && (
+            <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-6">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <span className="text-red-700 text-sm">{error}</span>
             </div>
+          )}
 
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-800 font-medium mb-2">Demo Patient Credentials:</p>
-              <p className="text-xs text-blue-600">Username: john.doe | Password: patient123</p>
-              <p className="text-xs text-blue-600">Username: sarah.johnson | Password: patient123</p>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Signing in...</span>
+          {/* Login Form */}
+          {!isSignup ? (
+            <form onSubmit={handleLogin} className="space-y-6">
+              {/* Username Field */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Username</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={loginData.username}
+                    onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Enter your username"
+                    required
+                  />
                 </div>
-              ) : (
-                'Sign In'
-              )}
-            </button>
-          </form>
-        ) : (
-          // Signup Form
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Shield className="inline h-4 w-4 mr-1" />
-                Hospital Registration Code *
-              </label>
-              <input
-                type="text"
-                required
-                value={signupData.signupCode}
-                onChange={(e) => setSignupData(prev => ({ ...prev, signupCode: e.target.value.toUpperCase() }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter code provided by hospital"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                This code is provided by hospital staff during your visit
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={signupData.firstName}
-                  onChange={(e) => setSignupData(prev => ({ ...prev, firstName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={signupData.lastName}
-                  onChange={(e) => setSignupData(prev => ({ ...prev, lastName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-              <input
-                type="email"
-                required
-                value={signupData.email}
-                onChange={(e) => setSignupData(prev => ({ ...prev, email: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
-                <input
-                  type="tel"
-                  required
-                  value={signupData.phoneNumber}
-                  onChange={(e) => setSignupData(prev => ({ ...prev, phoneNumber: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
-                <input
-                  type="date"
-                  required
-                  value={signupData.dateOfBirth}
-                  onChange={(e) => setSignupData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Username *</label>
-              <input
-                type="text"
-                required
-                value={signupData.username}
-                onChange={(e) => setSignupData(prev => ({ ...prev, username: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Choose a username"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password *</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={signupData.password}
-                  onChange={(e) => setSignupData(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Create a password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  required
-                  value={signupData.confirmPassword}
-                  onChange={(e) => setSignupData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Confirm your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-green-50 p-3 rounded-lg">
-              <p className="text-sm text-green-800 font-medium mb-1">Valid Demo Codes:</p>
-              <p className="text-xs text-green-600">HSP2024001, HSP2024002, MED2024001</p>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Creating Account...</span>
+              {/* Password Field */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="password"
+                    value={loginData.password}
+                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Enter your password"
+                    required
+                  />
                 </div>
-              ) : (
-                'Create Account'
-              )}
-            </button>
-          </form>
-        )}
+              </div>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help? Contact hospital reception at{' '}
-            <span className="text-blue-600 font-medium">+1 (555) 911-HELP</span>
-          </p>
+              {/* Demo Credentials */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-800 mb-2">Demo Patient Login:</h4>
+                <p className="text-sm text-blue-700"><strong>Username:</strong> john.doe</p>
+                <p className="text-sm text-blue-700"><strong>Password:</strong> patient123</p>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Signing in...</span>
+                  </div>
+                ) : (
+                  'Sign In'
+                )}
+              </button>
+
+              {/* Switch to Signup */}
+              <div className="text-center">
+                <p className="text-gray-600">
+                  New patient?{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsSignup(true)}
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Create an account
+                  </button>
+                </p>
+              </div>
+            </form>
+          ) : (
+            /* Signup Form */
+            <form onSubmit={handleSignup} className="space-y-4">
+              {/* Personal Information */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">First Name</label>
+                  <input
+                    type="text"
+                    value={signupData.firstName}
+                    onChange={(e) => setSignupData({...signupData, firstName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                  <input
+                    type="text"
+                    value={signupData.lastName}
+                    onChange={(e) => setSignupData({...signupData, lastName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  value={signupData.email}
+                  onChange={(e) => setSignupData({...signupData, email: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Phone</label>
+                  <input
+                    type="tel"
+                    value={signupData.phone}
+                    onChange={(e) => setSignupData({...signupData, phone: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={signupData.dateOfBirth}
+                    onChange={(e) => setSignupData({...signupData, dateOfBirth: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Signup Code */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Hospital Signup Code</label>
+                <div className="relative">
+                  <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={signupData.signupCode}
+                    onChange={(e) => setSignupData({...signupData, signupCode: e.target.value})}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Enter code provided by hospital"
+                    required
+                  />
+                </div>
+                <p className="text-xs text-gray-500">
+                  Demo codes: HSP2024001, HSP2024002, MED2024001
+                </p>
+              </div>
+
+              {/* Account Credentials */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Username</label>
+                <input
+                  type="text"
+                  value={signupData.username}
+                  onChange={(e) => setSignupData({...signupData, username: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Password</label>
+                  <input
+                    type="password"
+                    value={signupData.password}
+                    onChange={(e) => setSignupData({...signupData, password: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                  <input
+                    type="password"
+                    value={signupData.confirmPassword}
+                    onChange={(e) => setSignupData({...signupData, confirmPassword: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Creating account...</span>
+                  </div>
+                ) : (
+                  'Create Account'
+                )}
+              </button>
+
+              {/* Switch to Login */}
+              <div className="text-center">
+                <p className="text-gray-600">
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsSignup(false)}
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
+export default PatientAuthModal;

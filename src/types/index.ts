@@ -1,117 +1,173 @@
+// User and Authentication Types
+export interface User {
+  id: string;
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: UserRole;
+  department?: string;
+  specialization?: string;
+  phone?: string;
+  createdAt: string;
+}
+
+export type UserRole = 'admin' | 'doctor' | 'nurse' | 'staff';
+
+// Patient Types
 export interface Patient {
   id: string;
   firstName: string;
   lastName: string;
-  dateOfBirth: string;
-  gender: 'Male' | 'Female' | 'Other';
-  phoneNumber: string;
-  email?: string;
-  address: string;
-  emergencyContact: {
-    name: string;
-    relationship: string;
-    phoneNumber: string;
-  };
-  bloodGroup: string;
-  allergies: string[];
-  medicalHistory: MedicalRecord[];
-  insuranceInfo?: {
-    provider: string;
-    policyNumber: string;
-    groupNumber?: string;
-  };
-  createdAt: string;
-  status: 'Active' | 'Inactive' | 'Discharged';
-  patientNumber: string;
-}
-
-export interface Doctor {
-  id: string;
-  firstName: string;
-  lastName: string;
-  specialization: string;
-  phoneNumber: string;
   email: string;
-  licenseNumber: string;
-  department: string;
-  yearsOfExperience: number;
-  availability: {
-    [key: string]: { start: string; end: string; }[];
-  };
-  status: 'Available' | 'On Leave' | 'Busy';
-  consultationFee: number;
+  phone: string;
+  dateOfBirth: string;
+  gender: 'male' | 'female' | 'other';
+  address: string;
+  emergencyContact: string;
+  emergencyPhone: string;
+  bloodType: string;
+  allergies: string[];
+  medicalHistory: string[];
+  insurance: string;
+  createdAt: string;
+  username?: string;
+  password?: string;
+  appointments?: Appointment[];
+  medicalRecords?: MedicalRecord[];
+  bills?: Bill[];
 }
 
+// Appointment Types
 export interface Appointment {
   id: string;
   patientId: string;
   doctorId: string;
-  dateTime: string;
-  duration: number;
-  type: 'Consultation' | 'Follow-up' | 'Emergency' | 'Surgery';
-  status: 'Scheduled' | 'In Progress' | 'Completed' | 'Cancelled' | 'No Show';
+  patientName: string;
+  doctorName: string;
+  date: string;
+  time: string;
+  type: AppointmentType;
+  status: AppointmentStatus;
+  reason: string;
   notes?: string;
-  symptoms?: string;
-  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  duration: number; // in minutes
+  room?: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  createdAt: string;
 }
 
+export type AppointmentType = 'consultation' | 'follow-up' | 'surgery' | 'emergency' | 'checkup';
+export type AppointmentStatus = 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled' | 'no-show';
+
+// Medical Record Types
 export interface MedicalRecord {
   id: string;
   patientId: string;
   doctorId: string;
+  patientName: string;
+  doctorName: string;
   date: string;
   diagnosis: string;
-  symptoms: string;
+  symptoms: string[];
   treatment: string;
   prescriptions: Prescription[];
-  labResults?: LabResult[];
   notes: string;
   followUpDate?: string;
+  attachments?: string[];
+  vitals?: VitalSigns;
+  createdAt: string;
 }
 
 export interface Prescription {
   id: string;
-  medicationName: string;
+  medication: string;
   dosage: string;
   frequency: string;
   duration: string;
   instructions: string;
-  prescribedDate: string;
+  refills: number;
 }
 
-export interface LabResult {
+export interface VitalSigns {
+  bloodPressure: string;
+  heartRate: number;
+  temperature: number;
+  weight: number;
+  height: number;
+  respiratoryRate: number;
+  oxygenSaturation: number;
+}
+
+// Doctor Types
+export interface Doctor {
   id: string;
-  testName: string;
-  result: string;
-  normalRange: string;
-  status: 'Normal' | 'Abnormal' | 'Critical';
-  testDate: string;
-  comments?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  specialization: string;
+  department: string;
+  licenseNumber: string;
+  experience: number; // years
+  education: string[];
+  certifications: string[];
+  availability: DoctorAvailability[];
+  consultationFee: number;
+  rating: number;
+  totalPatients: number;
+  joinDate: string;
+  status: 'active' | 'inactive' | 'on-leave';
+  profileImage?: string;
 }
 
+export interface DoctorAvailability {
+  day: string;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+}
+
+// Room Types
 export interface Room {
   id: string;
-  roomNumber: string;
-  type: 'General' | 'ICU' | 'Private' | 'Emergency' | 'Surgery';
-  status: 'Available' | 'Occupied' | 'Maintenance' | 'Reserved';
-  patientId?: string;
+  number: string;
+  type: RoomType;
+  status: RoomStatus;
   floor: number;
   capacity: number;
+  currentPatient?: string;
+  assignedDoctor?: string;
   equipment: string[];
   dailyRate: number;
+  features: string[];
+  lastCleaned: string;
+  nextMaintenance: string;
 }
 
+export type RoomType = 'general' | 'private' | 'icu' | 'emergency' | 'surgery' | 'maternity' | 'pediatric';
+export type RoomStatus = 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'reserved';
+
+// Billing Types
 export interface Bill {
   id: string;
   patientId: string;
-  items: BillItem[];
-  totalAmount: number;
-  paidAmount: number;
-  status: 'Pending' | 'Partially Paid' | 'Paid' | 'Overdue';
+  patientName: string;
+  date: string;
   dueDate: string;
-  createdDate: string;
+  items: BillItem[];
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  amountPaid: number;
+  balance: number;
+  status: BillStatus;
   paymentMethod?: string;
-  insuranceCovered?: number;
+  insuranceCoverage?: number;
+  notes?: string;
+  createdAt: string;
 }
 
 export interface BillItem {
@@ -119,32 +175,95 @@ export interface BillItem {
   description: string;
   quantity: number;
   unitPrice: number;
-  totalPrice: number;
-  category: 'Consultation' | 'Procedure' | 'Medication' | 'Room' | 'Test' | 'Other';
+  total: number;
+  category: 'consultation' | 'procedure' | 'medication' | 'room' | 'lab' | 'other';
 }
 
-export interface Staff {
-  id: string;
+export type BillStatus = 'pending' | 'paid' | 'overdue' | 'cancelled' | 'refunded';
+
+// Dashboard Statistics Types
+export interface DashboardStats {
+  totalPatients: number;
+  totalDoctors: number;
+  totalAppointments: number;
+  totalRooms: number;
+  availableRooms: number;
+  occupiedRooms: number;
+  todayAppointments: number;
+  pendingAppointments: number;
+  completedAppointments: number;
+  revenue: number;
+  pendingBills: number;
+}
+
+// Form Types
+export interface AppointmentFormData {
+  patientId: string;
+  doctorId: string;
+  date: string;
+  time: string;
+  type: AppointmentType;
+  reason: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  notes?: string;
+}
+
+export interface PatientFormData {
   firstName: string;
   lastName: string;
-  role: 'Doctor' | 'Nurse' | 'Technician' | 'Administrator' | 'Receptionist' | 'Pharmacist';
-  department: string;
-  phoneNumber: string;
   email: string;
-  shift: 'Morning' | 'Evening' | 'Night';
-  status: 'Active' | 'On Leave' | 'Inactive';
-  hireDate: string;
+  phone: string;
+  dateOfBirth: string;
+  gender: 'male' | 'female' | 'other';
+  address: string;
+  emergencyContact: string;
+  emergencyPhone: string;
+  bloodType: string;
+  allergies: string[];
+  medicalHistory: string[];
+  insurance: string;
 }
 
-export interface InventoryItem {
+export interface DoctorFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  specialization: string;
+  department: string;
+  licenseNumber: string;
+  experience: number;
+  education: string[];
+  certifications: string[];
+  consultationFee: number;
+}
+
+// Search and Filter Types
+export interface SearchFilters {
+  query: string;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+  status?: string;
+  type?: string;
+  department?: string;
+  priority?: string;
+}
+
+// API Response Types
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message: string;
+  error?: string;
+}
+
+// Navigation Types
+export interface NavigationItem {
   id: string;
-  name: string;
-  category: 'Medication' | 'Equipment' | 'Supplies' | 'Consumables';
-  currentStock: number;
-  minimumStock: number;
-  unitPrice: number;
-  supplier: string;
-  expiryDate?: string;
-  location: string;
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock' | 'Expired';
+  label: string;
+  icon: any; // Lucide icon component
+  path: string;
+  roles: UserRole[];
 }
