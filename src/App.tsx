@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { User, UserRole } from './types';
 import LandingPage from './components/Landing/LandingPage';
 import Dashboard from './components/Dashboard/Dashboard';
@@ -6,9 +6,19 @@ import Sidebar from './components/Layout/Sidebar';
 import AppointmentsList from './components/Appointments/AppointmentsList';
 import DoctorsList from './components/Doctors/DoctorsList';
 import Patients from './components/Patients/Patients';
-import Rooms from './components/Rooms/Rooms';
+import Rooms from './components/Rooms/RoomManagement';
 import MedicalRecords from './components/MedicalRecords/MedicalRecords';
 import PatientPortal from './components/Patients/PatientPortal';
+
+// Memoized section titles for better performance
+const SECTION_TITLES = {
+  dashboard: 'Dashboard',
+  patients: 'Patient Management',
+  doctors: 'Doctor Management',
+  appointments: 'Appointments',
+  records: 'Medical Records',
+  rooms: 'Room Management',
+} as const;
 
 function App() {
   // Authentication state
@@ -18,16 +28,25 @@ function App() {
   // Navigation state
   const [activeSection, setActiveSection] = useState('dashboard');
 
-  // Handle staff logout
-  const handleLogout = () => {
+  // Memoized handlers for better performance
+  const handleLogout = useCallback(() => {
     setCurrentUser(null);
     setActiveSection('dashboard');
-  };
+  }, []);
 
-  // Handle patient logout
-  const handlePatientLogout = () => {
+  const handlePatientLogout = useCallback(() => {
     setCurrentPatient(null);
-  };
+  }, []);
+
+  const handleSectionChange = useCallback((section: string) => {
+    setActiveSection(section);
+  }, []);
+
+  // Memoized current page title
+  const currentTitle = useMemo(() => 
+    SECTION_TITLES[activeSection as keyof typeof SECTION_TITLES] || 'Dashboard',
+    [activeSection]
+  );
 
   // Render patient portal if patient is logged in
   if (currentPatient) {
@@ -49,6 +68,26 @@ function App() {
     );
   }
 
+  // Memoized main content renderer for better performance
+  const renderMainContent = useMemo(() => {
+    switch (activeSection) {
+      case 'dashboard':
+        return <Dashboard currentUser={currentUser} />;
+      case 'appointments':
+        return <AppointmentsList currentUser={currentUser} />;
+      case 'doctors':
+        return <DoctorsList currentUser={currentUser} />;
+      case 'patients':
+        return <Patients currentUser={currentUser} />;
+      case 'rooms':
+        return <Rooms currentUser={currentUser} />;
+      case 'records':
+        return <MedicalRecords currentUser={currentUser} />;
+      default:
+        return <Dashboard currentUser={currentUser} />;
+    }
+  }, [activeSection, currentUser]);
+
   // Render main dashboard for authenticated staff
   return (
     <div className="flex h-screen bg-gray-50">
@@ -56,36 +95,23 @@ function App() {
       <Sidebar
         currentUser={currentUser}
         activeSection={activeSection}
-        onSectionChange={setActiveSection}
+        onSectionChange={handleSectionChange}
         onLogout={handleLogout}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-auto">
-        <div className="p-6">
-          {/* Render active section based on navigation */}
-          {activeSection === 'dashboard' && (
-            <Dashboard currentUser={currentUser} />
-          )}
-          {activeSection === 'appointments' && (
-            <AppointmentsList currentUser={currentUser} />
-          )}
-          {activeSection === 'doctors' && (
-            <DoctorsList currentUser={currentUser} />
-          )}
-          {activeSection === 'patients' && (
-            <Patients currentUser={currentUser} />
-          )}
-          {activeSection === 'rooms' && (
-            <Rooms currentUser={currentUser} />
-          )}
-          {activeSection === 'records' && (
-            <MedicalRecords currentUser={currentUser} />
-          )}
+        <div className="p-4 lg:p-6">
+          <div className="mb-4 lg:mb-6">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              {currentTitle}
+            </h1>
+          </div>
+          {renderMainContent}
         </div>
       </main>
     </div>
   );
 }
 
-export default App;
+export default React.memo(App);
