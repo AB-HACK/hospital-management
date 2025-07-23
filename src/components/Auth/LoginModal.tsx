@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { X, User, Lock, AlertCircle } from 'lucide-react';
 import { User as UserType } from '../../types';
-import { users } from '../../data/mockData';
+import { mockUsers } from '../../data/mockData';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -9,45 +9,67 @@ interface LoginModalProps {
   onLogin: (user: UserType) => void;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => {
+// Memoized demo credentials for better performance
+const DEMO_CREDENTIALS = [
+  { label: 'Admin', username: 'admin', password: 'admin123' },
+  { label: 'Doctor', username: 'dr.watson', password: 'doctor123' }
+] as const;
+
+export const LoginModal: React.FC<LoginModalProps> = React.memo(({ 
+  isOpen, 
+  onClose, 
+  onLogin 
+}) => {
   // Form state
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [credentials, setCredentials] = useState({
+    username: '',
+    password: ''
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Memoized handlers for better performance
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Find user in mock data
-    const user = users.find(u => u.username === username && u.password === password);
+      // Find user in mock data
+      const user = mockUsers.find(u => 
+        u.username === credentials.username && u.password === credentials.password
+      );
 
-    if (user) {
-      onLogin(user);
-      onClose();
-      // Reset form
-      setUsername('');
-      setPassword('');
-    } else {
-      setError('Invalid username or password');
+      if (user) {
+        onLogin(user as UserType);
+        onClose();
+        // Reset form
+        setCredentials({ username: '', password: '' });
+      } else {
+        setError('Invalid username or password');
+      }
+    } catch (err) {
+      setError('An error occurred during login');
+    } finally {
+      setIsLoading(false);
     }
+  }, [credentials, onLogin, onClose]);
 
-    setIsLoading(false);
-  };
-
-  // Reset form when modal closes
-  const handleClose = () => {
-    setUsername('');
-    setPassword('');
+  const handleClose = useCallback(() => {
+    setCredentials({ username: '', password: '' });
     setError('');
     onClose();
-  };
+  }, [onClose]);
+
+  const handleInputChange = useCallback((field: 'username' | 'password') => 
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setCredentials(prev => ({ ...prev, [field]: e.target.value }));
+      if (error) setError(''); // Clear error when user starts typing
+    }, [error]
+  );
 
   if (!isOpen) return null;
 
@@ -60,6 +82,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -70,7 +93,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           {/* Error Message */}
           {error && (
             <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-red-500" />
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
               <span className="text-red-700 text-sm">{error}</span>
             </div>
           )}
@@ -84,11 +107,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={credentials.username}
+                onChange={handleInputChange('username')}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter your username"
                 required
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -102,11 +126,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={credentials.password}
+                onChange={handleInputChange('password')}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter your password"
                 required
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -115,8 +140,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 className="font-medium text-blue-800 mb-2">Demo Credentials:</h4>
             <div className="text-sm text-blue-700 space-y-1">
-              <p><strong>Admin:</strong> admin / admin123</p>
-              <p><strong>Doctor:</strong> dr.watson / doctor123</p>
+              {DEMO_CREDENTIALS.map(({ label, username, password }) => (
+                <p key={username}>
+                  <strong>{label}:</strong> {username} / {password}
+                </p>
+              ))}
             </div>
           </div>
 
@@ -139,6 +167,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
       </div>
     </div>
   );
-};
+});
+
+LoginModal.displayName = 'LoginModal';
 
 export default LoginModal;

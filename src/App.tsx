@@ -1,14 +1,14 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { User, UserRole } from './types';
-import LandingPage from './components/Landing/LandingPage';
-import Dashboard from './components/Dashboard/Dashboard';
-import Sidebar from './components/Layout/Sidebar';
-import AppointmentsList from './components/Appointments/AppointmentsList';
-import DoctorsList from './components/Doctors/DoctorsList';
-import Patients from './components/Patients/Patients';
-import Rooms from './components/Rooms/RoomManagement';
-import MedicalRecords from './components/MedicalRecords/MedicalRecords';
-import PatientPortal from './components/Patients/PatientPortal';
+import { LandingPage } from './components/Landing/LandingPage';
+import { Dashboard } from './components/Dashboard/Dashboard';
+import { Sidebar } from './components/Layout/Sidebar';
+import { AppointmentsList } from './components/Appointments/AppointmentsList';
+import { DoctorsList } from './components/Doctors/DoctorsList';
+import { PatientsList } from './components/Patients/PatientsList';
+import { RoomManagement } from './components/Rooms/RoomManagement';
+import { MedicalRecords } from './components/MedicalRecords/MedicalRecords';
+import { PatientPortal } from './components/Patients/PatientPortal';
 
 // Memoized section titles for better performance
 const SECTION_TITLES = {
@@ -78,9 +78,9 @@ function App() {
       case 'doctors':
         return <DoctorsList currentUser={currentUser} />;
       case 'patients':
-        return <Patients currentUser={currentUser} />;
+        return <PatientsList currentUser={currentUser} />;
       case 'rooms':
-        return <Rooms currentUser={currentUser} />;
+        return <RoomManagement currentUser={currentUser} />;
       case 'records':
         return <MedicalRecords currentUser={currentUser} />;
       default:

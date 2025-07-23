@@ -1,28 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Heart, Menu, X } from 'lucide-react';
-import { HeroSection } from './HeroSection';
-import { ServicesSection } from './ServicesSection';
-import { AboutSection } from './AboutSection';
-import { ContactSection } from './ContactSection';
-import { LoginModal } from '../Auth/LoginModal';
-import { PatientAuthModal } from '../Auth/PatientAuthModal';
+import HeroSection from './HeroSection';
+import ServicesSection from './ServicesSection';
+import AboutSection from './AboutSection';
+import ContactSection from './ContactSection';
+import LoginModal from '../Auth/LoginModal';
+import PatientAuthModal from '../Auth/PatientAuthModal';
 
 interface LandingPageProps {
   onLogin: (credentials: { username: string; password: string; role: string }) => void;
   onPatientLogin: (credentials: { username: string; password: string; type: 'patient' }) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogin }) => {
+// Memoized navigation items
+const NAV_ITEMS = [
+  { label: 'Home', href: '#home' },
+  { label: 'Services', href: '#services' },
+  { label: 'About', href: '#about' },
+  { label: 'Contact', href: '#contact' }
+] as const;
+
+export const LandingPage: React.FC<LandingPageProps> = React.memo(({ 
+  onLogin, 
+  onPatientLogin 
+}) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showPatientAuthModal, setShowPatientAuthModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navItems = [
-    { label: 'Home', href: '#home' },
-    { label: 'Services', href: '#services' },
-    { label: 'About', href: '#about' },
-    { label: 'Contact', href: '#contact' }
-  ];
+  // Memoized handlers for better performance
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(prev => !prev);
+  }, []);
+
+  const handleStaffLogin = useCallback(() => {
+    setShowLoginModal(true);
+    setIsMobileMenuOpen(false);
+  }, []);
+
+  const handlePatientLogin = useCallback(() => {
+    setShowPatientAuthModal(true);
+    setIsMobileMenuOpen(false);
+  }, []);
+
+  const handleNavClick = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -40,7 +63,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogi
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              {navItems.map((item) => (
+              {NAV_ITEMS.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
@@ -51,13 +74,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogi
               ))}
               <div className="flex space-x-3">
                 <button
-                  onClick={() => setShowPatientAuthModal(true)}
+                  onClick={handlePatientLogin}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   Patient Portal
                 </button>
                 <button
-                  onClick={() => setShowLoginModal(true)}
+                  onClick={handleStaffLogin}
                   className="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition-colors font-medium"
                 >
                   Staff Login
@@ -67,8 +90,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogi
 
             {/* Mobile Menu Button */}
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggleMobileMenu}
               className="md:hidden p-2"
+              aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6 text-gray-700" />
@@ -82,30 +106,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogi
           {isMobileMenuOpen && (
             <div className="md:hidden py-4 border-t border-gray-200">
               <div className="flex flex-col space-y-4">
-                {navItems.map((item) => (
+                {NAV_ITEMS.map((item) => (
                   <a
                     key={item.label}
                     href={item.href}
                     className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={handleNavClick}
                   >
                     {item.label}
                   </a>
                 ))}
                 <button
-                  onClick={() => {
-                    setShowPatientAuthModal(true);
-                    setIsMobileMenuOpen(false);
-                  }}
+                  onClick={handlePatientLogin}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-left"
                 >
                   Patient Portal
                 </button>
                 <button
-                  onClick={() => {
-                    setShowLoginModal(true);
-                    setIsMobileMenuOpen(false);
-                  }}
+                  onClick={handleStaffLogin}
                   className="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition-colors font-medium text-left"
                 >
                   Staff Login
@@ -118,10 +136,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogi
 
       {/* Page Sections */}
       <div id="home">
-        <HeroSection 
-          onLoginClick={() => setShowLoginModal(true)} 
-          onPatientLoginClick={() => setShowPatientAuthModal(true)}
-        />
+        <HeroSection onBookAppointment={handlePatientLogin} />
       </div>
       
       <div id="services">
@@ -133,7 +148,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogi
       </div>
       
       <div id="contact">
-        <ContactSection onPatientLoginClick={() => setShowPatientAuthModal(true)} />
+        <ContactSection onScheduleAppointment={handlePatientLogin} />
       </div>
 
       {/* Footer */}
@@ -155,10 +170,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogi
             <div>
               <h3 className="font-bold mb-4">Quick Links</h3>
               <div className="space-y-2">
-                <a href="#home" className="block text-gray-400 hover:text-white transition-colors">Home</a>
-                <a href="#services" className="block text-gray-400 hover:text-white transition-colors">Services</a>
-                <a href="#about" className="block text-gray-400 hover:text-white transition-colors">About</a>
-                <a href="#contact" className="block text-gray-400 hover:text-white transition-colors">Contact</a>
+                {NAV_ITEMS.map((item) => (
+                  <a 
+                    key={item.label}
+                    href={item.href} 
+                    className="block text-gray-400 hover:text-white transition-colors"
+                  >
+                    {item.label}
+                  </a>
+                ))}
               </div>
             </div>
             
@@ -203,4 +223,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onPatientLogi
       />
     </div>
   );
-};
+});
+
+LandingPage.displayName = 'LandingPage';
+
+export default LandingPage;
