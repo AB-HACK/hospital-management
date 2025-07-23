@@ -3,7 +3,7 @@ import { User, UserRole } from './types';
 import LandingPage from './components/Landing/LandingPage';
 import Dashboard from './components/Dashboard/Dashboard';
 import Sidebar from './components/Layout/Sidebar';
-import Appointments from './components/Appointments/Appointments';
+import AppointmentsList from './components/Appointments/AppointmentsList';
 import Doctors from './components/Doctors/Doctors';
 import Patients from './components/Patients/Patients';
 import Rooms from './components/Rooms/Rooms';
@@ -68,7 +68,7 @@ function App() {
             <Dashboard currentUser={currentUser} />
           )}
           {activeSection === 'appointments' && (
-            <Appointments currentUser={currentUser} />
+            <AppointmentsList currentUser={currentUser} />
           )}
           {activeSection === 'doctors' && (
             <Doctors currentUser={currentUser} />
