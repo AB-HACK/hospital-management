@@ -4,7 +4,7 @@ import LandingPage from './components/Landing/LandingPage';
 import Dashboard from './components/Dashboard/Dashboard';
 import Sidebar from './components/Layout/Sidebar';
 import AppointmentsList from './components/Appointments/AppointmentsList';
-import Doctors from './components/Doctors/Doctors';
+import DoctorsList from './components/Doctors/DoctorsList';
 import Patients from './components/Patients/Patients';
 import Rooms from './components/Rooms/Rooms';
 import MedicalRecords from './components/MedicalRecords/MedicalRecords';
@@ -71,7 +71,7 @@ function App() {
             <AppointmentsList currentUser={currentUser} />
           )}
           {activeSection === 'doctors' && (
-            <Doctors currentUser={currentUser} />
+            <DoctorsList currentUser={currentUser} />
           )}
           {activeSection === 'patients' && (
             <Patients currentUser={currentUser} />
