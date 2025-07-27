@@ -136,7 +136,10 @@ export const LandingPage: React.FC<LandingPageProps> = React.memo(({
 
       {/* Page Sections */}
       <div id="home">
-        <HeroSection onBookAppointment={handlePatientLogin} />
+        <HeroSection 
+          onBookAppointment={handlePatientLogin} 
+          onStaffLogin={handleStaffLogin}
+        />
       </div>
       
       <div id="services">
